@@ -1,25 +1,40 @@
-//
-//  ViewController.swift
-//  VideoCompressor
-//
-//  Created by Mo on 4/26/18.
-//  Copyright © 2018 Mo. All rights reserved.
-//
-
 import UIKit
+import AVFoundation
+import Lumina
+import Photos
+import AVKit
 
-class ViewController: UIViewController {
+class ViewController: UIViewController{
+    
+    private var backgroundRecordingID: UIBackgroundTaskIdentifier?
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
     }
-
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        let camera = LuminaViewController()
+        camera.delegate = self
+        camera.frameRate = 3
+        camera.resolution = .highest
+        camera.recordsVideo = true
+        present(camera, animated: true, completion: nil)
+    }
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
-
-
+    
+    func captured(videoAt: URL, from controller: LuminaViewController) {
+        if UIVideoAtPathIsCompatibleWithSavedPhotosAlbum(videoAt.relativePath) {
+            UISaveVideoAtPathToSavedPhotosAlbum(videoAt.relativePath, nil, nil, nil)
+        }
+    }
 }
 
+extension ViewController: LuminaDelegate {
+    func dismissed(controller: LuminaViewController) {
+        controller.dismiss(animated: true, completion: nil)
+    }
+}
